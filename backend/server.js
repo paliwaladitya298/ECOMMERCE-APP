@@ -17,20 +17,18 @@ connectCloudinary()
 
 //middlewares
 app.use(express.json())  
+// Allowed Origins
 const allowedOrigins = [
- "https://forever-app-frontend.vercel.app",
-"https://forever-app-admin.vercel.app/"
+  "https://forever-app-frontend.vercel.app",
+  "https://forever-app-admin.vercel.app",
+  "http://localhost:5173"
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 // api endpoints
