@@ -1,46 +1,56 @@
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import connectDB from './config/mongodb.js'
-import connectCloudinary from './config/cloudinary.js'
-import userRouter from './routes/userRoute.js'
-import productRouter from './routes/productRouter.js'
-import cartRouter from './routes/cartRoute.js'
-import orderRouter from './routes/orderRoute.js'
-// App Config
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
 
-const app = express()
-const port = process.env.PORT || 4000
-connectDB()
-connectCloudinary()
+import connectDB from "./config/mongodb.js";
+import connectCloudinary from "./config/cloudinary.js";
 
+import userRouter from "./routes/userRoute.js";
+import productRouter from "./routes/productRouter.js";
+import cartRouter from "./routes/cartRoute.js";
+import orderRouter from "./routes/orderRoute.js";
 
-//middlewares
-app.use(express.json())  
-// Allowed Origins
-const allowedOrigins = [
-  "https://forever-app-frontend.vercel.app",
-  "https://forever-app-admin.vercel.app",
-  "http://localhost:5173"
-];
+const app = express();
+const port = process.env.PORT || 4000;
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+// Database & Cloudinary
+connectDB();
+connectCloudinary();
 
-// api endpoints
+// Middleware
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://forever-app-frontend.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 
-app.use('/api/user' , userRouter)
-app.use('/api/product' , productRouter)
-app.use('/api/cart', cartRouter)
-app.use('/api/order', orderRouter)
+app.options("*", cors());
 
+app.use(express.json());
 
-app.get('/' ,(req , res)=>{
-      res.send('API working')
-})
+// Routes
+app.get("/", (req, res) => {
+  res.send("API Working");
+});
 
-app.listen(port, ()=>console.log('Server Started on PORT : ' + port))
+app.use("/api/user", userRouter);
+app.use("/api/product", productRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/order", orderRouter);
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server Started on PORT: ${port}`);
+});
